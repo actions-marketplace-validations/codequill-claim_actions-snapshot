@@ -1,0 +1,34 @@
+name: "CodeQuill — Snapshot & Publish"
+description: "Run CodeQuill snapshot then publish in CI (non-interactive)."
+author: "CodeQuill"
+branding:
+  icon: "upload-cloud"
+  color: "blue"
+
+inputs:
+  token:
+    description: "CodeQuill repo-scoped bearer token."
+    required: true
+  github_id:
+    description: "GitHub repository numeric id. Use: ${{ github.repository_id }}"
+    required: true
+  api_base_url:
+    description: "Override CodeQuill API base URL (optional)."
+    required: false
+    default: ""
+  cli_version:
+    description: "npm version for codequill CLI. Empty = latest."
+    required: false
+    default: ""
+  working_directory:
+    description: "Working directory where CodeQuill runs."
+    required: false
+    default: "."
+  extra_args:
+    description: "Extra args appended to both commands (quotes supported)."
+    required: false
+    default: ""
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
