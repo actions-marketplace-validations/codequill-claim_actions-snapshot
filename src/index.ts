@@ -51,9 +51,9 @@ async function run() {
         };
         if (apiBase) env.CODEQUILL_API_BASE_URL = apiBase;
 
-        await runCli(["snapshot", ...extra], env);
+        await runCli(["snapshot"], env);
         
-        const publishOutput = await runCli(["publish", "--no-confirm", "--json", "--no-wait", ...extra], env);
+        const publishOutput = await runCli(["publish", "--no-confirm", "--json", "--no-wait"], env);
         let txHash = "";
         try {
             const res = JSON.parse(publishOutput.stdout);
