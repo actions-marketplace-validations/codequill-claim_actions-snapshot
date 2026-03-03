@@ -38,6 +38,7 @@ async function run() {
         const wd = opt("working_directory", ".");
         const extraArgs = opt("extra_args", "");
         const extra = extraArgs ? stringArgv(extraArgs) : [];
+        const shouldPreserve = opt("preserve") === "true";
 
         const wdAbs = path.resolve(process.cwd(), wd);
         ensureDir(wdAbs);
@@ -55,14 +56,16 @@ async function run() {
         
         const publishOutput = await runCli(["publish", "--no-confirm", "--json", "--no-wait"], env);
         let txHash = "";
+        let snapshotId = "";
         try {
             const res = JSON.parse(publishOutput.stdout);
             txHash = res.tx_hash;
+            snapshotId = res.snapshot_id;
             if (res.explorer_url) {
                 core.info(`View transaction on explorer: ${res.explorer_url}`);
             }
         } catch (e) {
-            core.warning("Failed to parse publish output as JSON. Transaction hash not found.");
+            core.warning("Failed to parse publish output as JSON. Transaction hash and snapshot ID not found.");
         }
 
         if (txHash) {
@@ -70,6 +73,30 @@ async function run() {
             await runCli(["wait", txHash, ...extra], env);
         } else {
             core.warning("No transaction hash found, skipping wait.");
+        }
+
+        if (shouldPreserve) {
+            if (!snapshotId) {
+                core.warning("No snapshot_id found in publish output, skipping preservation.");
+            } else {
+                core.info(`Preserving snapshot: ${snapshotId}`);
+                const preserveOutput = await runCli(["preserve", snapshotId, "--no-confirm", "--json", "--no-wait"], env);
+                try {
+                    const res = JSON.parse(preserveOutput.stdout);
+                    const preserveTxHash = res.tx_hash;
+                    if (res.explorer_url) {
+                        core.info(`View preservation transaction on explorer: ${res.explorer_url}`);
+                    }
+                    if (preserveTxHash) {
+                        core.info(`Waiting for preservation transaction: ${preserveTxHash}`);
+                        await runCli(["wait", preserveTxHash, ...extra], env);
+                    } else {
+                        core.warning("No transaction hash found for preservation, skipping wait.");
+                    }
+                } catch (e) {
+                    core.warning("Failed to parse preserve output as JSON.");
+                }
+            }
         }
 
         core.info("Done.");

@@ -28,6 +28,10 @@ inputs:
     description: "Extra args appended to both commands (quotes supported)."
     required: false
     default: ""
+  preserve:
+    description: "Preserve the code after publish."
+    required: false
+    default: "false"
 
 runs:
   using: "node20"

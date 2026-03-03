@@ -63,6 +63,7 @@ jobs:
 | `cli_version` | npm version for codequill CLI. Leave empty for latest. | No | "" |
 | `working_directory` | Working directory where CodeQuill commands run. | No | .                    |
 | `extra_args` | Extra arguments appended to both commands. | No | ""                   |
+| `preserve` | Preserve the code after publish. | No | "false" |
 
 ## How it works
 
@@ -71,3 +72,4 @@ jobs:
 3. It runs `codequill snapshot` in the specified working directory.
 4. It runs `codequill publish --no-confirm --json --no-wait`.
 5. It parses the resulting transaction hash and runs `codequill wait` to ensure the process completes successfully on-chain.
+6. If the `preserve` option is enabled, it calls `codequill preserve <snapshot_id> --json --no-wait` and waits for the preservation transaction to complete.
